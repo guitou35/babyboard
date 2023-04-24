@@ -1,0 +1,26 @@
+api_platform:
+  title: Babyboard API
+  version: 1.0
+  openapi:
+      contact:
+          name: Guillaume PLUCHON
+          email: guitou.pluchon@gmail.com
+          url: https://localhost/api
+  error_formats:
+    jsonld: ['application/ld+json']
+
+  #formats:
+    #jsonld: ['application/ld+json']
+  mapping:
+    paths:
+      - '%kernel.project_dir%/src/Entity'
+      - '%kernel.project_dir%/src/ApiResource'
+      - '%kernel.project_dir%/config/api_platform'
+  exception_to_status:
+    App\Exception\HttpNotFoundException: 404
+  swagger:
+    versions: [3]
+    api_keys:
+      JWT:
+        name: Authorization
+        type: header

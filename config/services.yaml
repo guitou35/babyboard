@@ -20,5 +20,31 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+        ##########################
+        #   Processor custom     #
+        ##########################
+
+    App\State\UserPasswordHasher:
+        bind:
+            $processor: '@api_platform.doctrine.orm.state.persist_processor'
+    App\State\SetOwnerProcessor:
+        bind:
+            $processor: '@api_platform.doctrine.orm.state.persist_processor'
+    App\State\SetParentsProcessor:
+        bind:
+            $processor: '@api_platform.doctrine.orm.state.persist_processor'
+    App\State\RepasProcessor:
+        bind:
+            $processor: '@api_platform.doctrine.orm.state.persist_processor'
+
+    App\State\GetOwnerProvider: 
+        bind:
+            $itemProvider: '@api_platform.doctrine.orm.state.collection_provider'
+
+    App\OpenApi\OpenApiFactory:
+        decorates: 'api_platform.openapi.factory'
+        arguments: ['@App\OpenApi\OpenApiFactory.inner']
+        autoconfigure: false
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
