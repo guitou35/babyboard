@@ -19,8 +19,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Link;
-use App\State\RepasProcessor;
-use App\State\SetOwnerProcessor;
+use App\State\CheckOwnProcessor;
 use DateTimeInterface;
 use App\State\GetOwnerProvider;
 
@@ -28,7 +27,7 @@ use App\State\GetOwnerProvider;
 #[ApiResource(
     operations:[
         new Get(
-            security: "is_granted('VIEW', object)",
+            security: "is_granted('ROLE_ADMIN') and is_granted('VIEW', object)",
             securityMessage: "You can only access your own user"
         ),
         new GetCollection(
@@ -66,14 +65,14 @@ use App\State\GetOwnerProvider;
         ),
 
         new Post(
-            processor: RepasProcessor::class,
+            processor: CheckOwnProcessor::class,
             security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_NOUNOU')",
             securityMessage: "You can only access your repas for your children",
         ),
         new Put(
             security: "is_granted('EDIT', object)",
             securityMessage: "You can only access your own user",
-            processor: SetOwnerProcessor::class,
+            processor: CheckOwnProcessor::class,
         ),
         new Delete(
             security: "is_granted('DELETE', object)",

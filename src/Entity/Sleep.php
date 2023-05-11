@@ -12,6 +12,10 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
+use Symfony\Component\Serializer\Annotation\Groups;
+use DateTimeInterface;
+use App\Entity\Definition\TimeStampableTrait;
+use App\Entity\Definition\UUIDEntityTrait;
 
 #[ORM\Entity(repositoryClass: SleepRepository::class)]
 #[ApiResource(
@@ -31,14 +35,26 @@ use ApiPlatform\Metadata\Delete;
         new Post(),
         new Put(),
         new Delete(),
-    ], 
+    ],
+    normalizationContext: ['groups' => ['Sleep:read']],
+    denormalizationContext: ['groups' => ['Sleep:create', 'write:item']],
 )]
+#[ORM\HasLifecycleCallbacks]
 class Sleep
 {
+    use UUIDEntityTrait;
+
+    use TimeStampableTrait;
+
+    public function __construct()
+    {
+        $this->generateUUId();
+    }
+
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(name: 'id', type: 'uuid', unique: true)]
+    #[Groups(["Change:read", "read:item"])]
+    private $id;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $startedAt = null;
@@ -54,6 +70,10 @@ class Sleep
 
     #[ORM\ManyToOne]
     private ?User $owner = null;
+
+    #[Groups(['Sleep:read', 'Sleep:create', 'Sleep:update'])]
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private $dateAt = null;
 
     public function getId(): ?int
     {
@@ -116,6 +136,18 @@ class Sleep
     public function setOwner(?User $owner): self
     {
         $this->owner = $owner;
+
+        return $this;
+    }
+
+    public function getDateAt(): ?DateTimeInterface
+    {
+        return $this->dateAt;
+    }
+
+    public function setDateAt(DateTimeInterface $dateAt): self
+    {
+        $this->dateAt = $dateAt;
 
         return $this;
     }

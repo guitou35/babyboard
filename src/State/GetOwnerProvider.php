@@ -20,13 +20,13 @@ final class GetOwnerProvider implements ProviderInterface
     {
         /** @var UserInterface $user */
         $user = $this->security->getUser();
-
+        
         if(!$user instanceof UserInterface && !$user->getId() == $uriVariables['userId']){
             return null;
         }
 
         $result = $this->itemProvider->provide($operation, $uriVariables, $context);
-
+        //var_dump($operation);
         if($result == null){
             throw new HttpNotFoundException(sprintf('Entity not found'));
         }

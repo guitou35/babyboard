@@ -15,7 +15,7 @@ enum ChangesProductsEnum : String
 {
     case LINIMENT = "Liniment";
     case TALC = "Talc";
-    case TALINGETTES = "Lingettes";
+    case LINGETTES = "Lingettes";
 
     public static function values(): array
     {

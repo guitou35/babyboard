@@ -27,13 +27,10 @@ services:
     App\State\UserPasswordHasher:
         bind:
             $processor: '@api_platform.doctrine.orm.state.persist_processor'
-    App\State\SetOwnerProcessor:
-        bind:
-            $processor: '@api_platform.doctrine.orm.state.persist_processor'
     App\State\SetParentsProcessor:
         bind:
             $processor: '@api_platform.doctrine.orm.state.persist_processor'
-    App\State\RepasProcessor:
+    App\State\CheckOwnProcessor:
         bind:
             $processor: '@api_platform.doctrine.orm.state.persist_processor'
 

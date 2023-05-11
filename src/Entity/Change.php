@@ -19,32 +19,66 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use App\Entity\Definition\TimeStampableTrait;
 use Symfony\Component\Serializer\Annotation\Groups;
-use App\State\SetOwnerProcessor;
+use ApiPlatform\Metadata\ApiFilter;
+use DateTimeInterface;
+use ApiPlatform\Serializer\Filter\GroupFilter;
+use App\State\CheckOwnProcessor;
+use ApiPlatform\Metadata\Link;
+use App\State\GetOwnerProvider;
 
 #[ORM\Entity(repositoryClass: ChangeRepository::class)]
 #[ApiResource(
     operations: [
         new Get(
+            security: "is_granted('ROLE_ADMIN') and is_granted('VIEW', object)",
             openapiContext: [
                 'summary' => 'Get all changes',
                 'description' => 'Get all changes',
             ],
         ),
         new Post(
+            security: "is_granted('ROLE_ADMIN')",
             securityMessage: 'Only admins can access this resource',
             openapiContext: [
                 'summary' => 'Create a new change',
                 'description' => 'Create a new change',
                 'normalization_context' => ['groups' => ['Change:create']],
             ],
-            processor: SetOwnerProcessor::class
+            processor: CheckOwnProcessor::class
         ),
         new GetCollection(
-            security: "is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_SUPER_ADMIN')",
             securityMessage: 'Only admins can access this resource',
             openapiContext: [
                 'summary' => 'Get all changes',
                 'description' => 'Get all changes',
+            ],
+        ),
+        new GetCollection(
+            security: "is_granted('ROLE_ADMIN')",
+            provider: GetOwnerProvider::class,
+            uriTemplate: '/users/{userId}/changes',
+            uriVariables: [
+                'userId' => 
+                new Link(fromClass: User::class, fromProperty: 'id', toClass: Changes::class, toProperty: 'owner')
+            ],
+            openapiContext: [
+                'summary' => 'Get all childrens by users',
+                'description' => 'Get all childrens by users',
+            ],
+        ),
+        new GetCollection(
+            security: " is_granted('ROLE_ADMIN')",
+            securityMessage: "You can only access your changes for your children",
+            provider: GetOwnerProvider::class,
+            uriTemplate: 'childrens/{childrenId}/changes',
+            uriVariables: [
+                'childrenId' => 
+                new Link(fromClass: Children::class, toClass: Change::class, toProperty: 'children'),
+],
+            openapiContext: [
+                'summary' => 'Get all changes of a children',
+                'description' => 'Get all changes of a user',
             ],
         ),
         new Put(
@@ -67,6 +101,7 @@ use App\State\SetOwnerProcessor;
     denormalizationContext: ['groups' => ['Change:create', 'write:item']],
 )]
 #[ORM\HasLifecycleCallbacks]
+#[ApiFilter(GroupFilter::class, arguments: ['parameterName' => 'groups', 'overrideDefaultGroups' => false])]
 class Change
 {
     use UUIDEntityTrait;
@@ -89,7 +124,7 @@ class Change
     #[Groups(["Change:create", "Change:read", "read:item"])]
     private string $type;
 
-    #[ORM\Column(type: Types::TIME_MUTABLE)]
+    #[ORM\Column(type: 'datetime')]
     #[Groups(["Change:create", "Change:read", "read:item"])]
     private ?\DateTimeInterface $heure = null;
 
