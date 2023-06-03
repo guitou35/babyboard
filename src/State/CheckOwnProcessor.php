@@ -21,7 +21,7 @@ class CheckOwnProcessor implements ProcessorInterface
         $user = $this->security->getUser();
 
         if(!$data->getChildren()->getUsers()->contains($user)) {
-            throw new \Exception('You can only access your repas for your children');
+            throw new \Exception('You can only access for your children');
         }
         
         if(($data instanceof Repas || $data instanceof Change || $data instanceof Sleep )&& $operation instanceof Post) {

@@ -90,7 +90,7 @@ use App\State\GetOwnerProvider;
             ],
         ),
         new Delete(
-            security: "object.getOwner() == user",
+            security: "is_granted('ROLE_ADMIN') and is_granted('DELETE', object)",
             openapiContext: [
                 'summary' => 'Delete a change',
                 'description' => 'Delete a change',
